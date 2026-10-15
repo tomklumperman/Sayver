@@ -1,44 +1,51 @@
 {
   "expo": {
-    "name": "finances-overview",
+    "name": "Finances Overview",
     "slug": "finances-overview",
+    "scheme": "sayver",
     "version": "1.0.0",
+    "sdkVersion": "57.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "financesoverview",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "extra": {
+      "truelayerClientId": "sandbox-sayverdevelopment-4b28b1",
+      "truelayerEnv": "sandbox",
+      "truelayerRedirectUri": "sayver://callback",
+      "truelayerBackendBaseUrl": "http://192.168.1.61:3001",
+      "eas": {
+        "projectId": "6aae3443-879c-4f8b-bc6d-2292268cb3ba"
+      }
+    },
     "ios": {
-      "icon": "./assets/expo.icon"
-    },
-    "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
-      },
-      "predictiveBackGestureEnabled": false
-    },
-    "web": {
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "bundleIdentifier": "com.tklumpermansteam.financesoverview",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "plugins": [
-      "expo-router",
+      "@react-native-community/datetimepicker",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "android": {
-            "image": "./assets/images/splash-icon.png",
-            "imageWidth": 76
+          "backgroundColor": "#0f5132",
+          "image": "./assets/icon.png",
+          "imageWidth": 240,
+          "resizeMode": "contain",
+          "dark": {
+            "backgroundColor": "#0f5132",
+            "image": "./assets/icon.png"
           }
         }
       ]
-    ],
-    "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
-    }
+    ]
   }
 }

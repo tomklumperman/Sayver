@@ -1,0 +1,141 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    match /users/{uid} {
+      // Signed-in users may read minimal profile data for collaboration lookup by email.
+      allow read: if isSignedIn();
+      allow write: if isOwner(uid);
+
+      match /connectedWallets/{walletId} {
+        allow read: if isOwner(uid);
+
+        // Client can create read-only wallet links only.
+        allow create: if isOwner(uid)
+          && request.resource.data.readOnly == true
+          && request.resource.data.provider in ['truelayer'];
+
+        // Client can update sync metadata but cannot flip readOnly off.
+        allow update: if isOwner(uid)
+          && resource.data.readOnly == true
+          && request.resource.data.readOnly == true;
+
+        allow delete: if isOwner(uid);
+      }
+
+      match /accounts/{accountId} {
+        allow read: if isOwner(uid);
+
+        allow update: if isOwner(uid);
+
+        allow create: if isOwner(uid);
+        allow delete: if isOwner(uid);
+
+        match /transactions/{txId} {
+          allow read: if isOwner(uid);
+          allow create, update, delete: if isOwner(uid);
+        }
+
+        match /recurringTransactions/{rtId} {
+          allow read: if isOwner(uid);
+          allow create, update, delete: if isOwner(uid);
+        }
+      }
+
+      match /futureTransactions/{transactionId} {
+        allow read, create, update, delete: if isOwner(uid);
+      }
+
+      match /sharedInviteInbox/{inviteId} {
+        allow read, update, delete: if isOwner(uid);
+
+        allow create: if isSignedIn()
+          && request.resource.data.inviteeUid == uid
+          && request.resource.data.inviterUid == request.auth.uid
+          && request.resource.data.status == 'pending';
+      }
+    }
+
+    match /investmentAccounts/{accountId} {
+      // Balances are readable by their owner; all writes go through Cloud Functions (Admin SDK).
+      allow read: if isSignedIn() && request.auth.uid == resource.data.userId;
+      allow write: if false;
+    }
+
+    match /investmentAccountSecrets/{accountId} {
+      // Never accessible from the client — Admin SDK only.
+      allow read, write: if false;
+    }
+
+    match /cryptoAccounts/{accountId} {
+      // Public wallet balances are readable only by their owner; sync writes use Admin SDK only.
+      allow read: if isSignedIn() && request.auth.uid == resource.data.userId;
+      allow write: if false;
+    }
+
+    match /cryptoAccountSecrets/{accountId} {
+      // OAuth access/refresh token bundles are Admin SDK only.
+      allow read, write: if false;
+    }
+
+    match /cryptoOAuthStates/{stateId} {
+      // PKCE verifier and OAuth state are temporary server-only records.
+      allow read, write: if false;
+    }
+
+    match /sharedAccounts/{sharedAccountId} {
+      allow create: if isSignedIn()
+        && request.resource.data.collaboratorIds is list
+        && request.auth.uid in request.resource.data.collaboratorIds;
+
+      allow read: if isSignedIn()
+        && (request.auth.uid in resource.data.collaboratorIds || request.auth.uid in resource.data.pendingInviteIds);
+
+      allow update, delete: if isSignedIn()
+        && (request.auth.uid in resource.data.collaboratorIds || request.auth.uid in resource.data.pendingInviteIds);
+
+      match /transactions/{txId} {
+        allow read: if isSignedIn()
+          && request.auth.uid in get(/databases/$(database)/documents/sharedAccounts/$(sharedAccountId)).data.collaboratorIds;
+
+        allow create, update, delete: if isSignedIn()
+          && request.auth.uid in get(/databases/$(database)/documents/sharedAccounts/$(sharedAccountId)).data.collaboratorIds;
+      }
+    }
+
+    match /sharedAccountInvites/{inviteId} {
+      allow create: if isSignedIn()
+        && request.resource.data.inviterUid == request.auth.uid
+        && request.resource.data.status == 'pending';
+
+      allow read: if isSignedIn()
+        && (
+          resource.data.inviterUid == request.auth.uid
+          || resource.data.inviteeUid == request.auth.uid
+          || (
+            request.auth.token.email != null
+            && resource.data.inviteeEmail is string
+            && resource.data.inviteeEmail == request.auth.token.email
+          )
+        );
+
+      allow update, delete: if isSignedIn()
+        && (
+          resource.data.inviterUid == request.auth.uid
+          || resource.data.inviteeUid == request.auth.uid
+          || (
+            request.auth.token.email != null
+            && resource.data.inviteeEmail is string
+            && resource.data.inviteeEmail == request.auth.token.email
+          )
+        );
+    }
+  }
+}

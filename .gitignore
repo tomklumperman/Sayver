@@ -25,13 +25,18 @@ expo-env.d.ts
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+firebase-debug.log
+firebase-debug.*.log
 
 # macOS
 .DS_Store
 *.pem
 
 # local env files
+.env
 .env*.local
+sayver-backend/.env
+sayver-backend/data/
 
 # typescript
 *.tsbuildinfo
@@ -41,3 +46,4 @@ example
 # generated native folders
 /ios
 /android
+zerion_keys.env

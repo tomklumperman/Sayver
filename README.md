@@ -1,56 +1,140 @@
-# Welcome to your Expo app 👋
+# Sayver
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Sayver is a personal-finance and shared-savings mobile app built with Expo and React Native. It combines manual budgeting, shared savings goals, connected bank accounts, read-only investment balances, and read-only crypto wallet tracking.
 
-## Get started
+<p align="center">
+  <img src="assets/icon.png" width="112" alt="Sayver app icon" />
+</p>
 
-1. Install dependencies
+## Preview
 
-   ```bash
+A real app screenshot is not included yet. To preview the app on a device with Expo Go, start Metro from the repository root:
+
+```sh
+npm install
+npx expo start --go
+```
+
+Scan the QR code with Expo Go. If Expo Go cannot reach Metro on your LAN, use `npx expo start --go --tunnel`. The `npm start` script starts the development-client workflow; use `--go` when previewing in Expo Go.
+
+For a custom development build, use `npx expo start --dev-client` and build/install a development client with EAS. Do not commit simulator screenshots containing personal financial data; use a dedicated demo account if adding screenshots to this README.
+
+## Features
+
+- Personal accounts, transactions, savings goals, and a balance trend.
+- Shared savings accounts, invitations, collaborator activity, and shared goals.
+- Read-only bank account linking through the Sayver backend and TrueLayer.
+- Read-only Trading 212 account and position balances.
+- Self-custody wallet balance tracking for Ethereum, Base, and Solana through Alchemy. Only public addresses are accepted; the app does not request private keys or seed phrases.
+- Coinbase OAuth scaffolding for read-only crypto balances. Coinbase OAuth requires an approved OAuth application and configured credentials.
+- User-owned account data protected by Firestore rules; provider credentials and OAuth state are stored separately and are server-only.
+
+## Project Layout
+
+- `App.js` and `src/navigation/` — app entry, authentication routing, and navigation.
+- `src/screens/` — finance, shared-savings, investment, and crypto screens.
+- `src/components/` — reusable cards, menus, and controls.
+- `src/firebase/` — Firebase client setup, Firestore access, and image uploads.
+- `functions/` — default Firebase Functions codebase for Trading 212 and Alchemy wallet functions.
+- `functions-coinbase/` — Coinbase OAuth and read-only account sync codebase.
+- `functions-zerion/` — isolated legacy Zerion callable; not required for current Alchemy wallet support.
+- `sayver-backend/` — Express backend used for TrueLayer bank connections.
+- `firestore.rules`, `storage.rules`, and `firestore.indexes.json` — Firebase access policy and indexes.
+
+## Requirements
+
+- Node.js compatible with the installed Expo SDK (Node.js 20 or newer recommended).
+- Expo Go for a quick device preview, or Xcode/Android Studio for native development builds.
+- A Firebase project with Authentication, Cloud Firestore, Cloud Storage, and Cloud Functions enabled for the features you use.
+
+## Local Setup
+
+1. Install the app dependencies:
+
+   ```sh
    npm install
    ```
 
-2. Start the app
+2. Review `src/firebase/config.js` and configure the public Firebase web-app settings for your own Firebase project if you are forking Sayver. Firebase client API keys are not server secrets; protect data with Firebase rules and API restrictions.
 
-   ```bash
-   npx expo start
+3. Start the app in Expo Go:
+
+   ```sh
+   npx expo start --go
    ```
 
-In the output, you'll find options to open the app in a
+4. If running the TrueLayer backend locally, configure its environment in `sayver-backend/.env` and start it separately:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+   ```sh
+   npm install --prefix sayver-backend
+   npm start --prefix sayver-backend
+   ```
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+   The local backend expects `PORT`, `ACCOUNTS_CACHE_TTL_MS`, `FIREBASE_PROJECT_ID`, `FIREBASE_WEB_API_KEY`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `TRUELAYER_ENV`, `TRUELAYER_CLIENT_ID`, `TRUELAYER_CLIENT_SECRET`, and `TRUELAYER_REDIRECT_URI`. Keep the `.env` file private. Update `truelayerBackendBaseUrl` in `app.json` to the reachable backend address for your device; do not use a machine-specific LAN address in a public release configuration.
 
-## Get a fresh project
+## Firebase Functions
 
-When you're ready, run:
+Each codebase is separate so optional provider credentials do not block unrelated deployments. Install dependencies when working on a codebase:
 
-```bash
-npm run reset-project
+```sh
+npm install --prefix functions
+npm install --prefix functions-coinbase
+npm install --prefix functions-zerion
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Secrets
 
-### Other setup steps
+Set values interactively with the Firebase CLI. Never commit secret values or paste them into issues or chat.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+- `functions` (default): `ALCHEMY_API_KEY` for wallet functions; `ENCRYPTION_KEY` for Trading 212 credentials.
+- `functions-coinbase` (`coinbase`): `COINBASE_ENCRYPTION_KEY`, `COINBASE_OAUTH_CLIENT_ID`, and `COINBASE_OAUTH_CLIENT_SECRET`. The callback and legacy Coinbase ciphertext migration also require the existing `ENCRYPTION_KEY`; do not rotate it while Trading 212 or legacy Coinbase data depends on it.
+- `functions-zerion` (`zerion-legacy`): `ZERION_API_KEY` only if you intentionally deploy the unused legacy callable.
 
-## Learn more
+Example secret setup (the CLI prompts for each value):
 
-To learn more about developing your project with Expo, look at the following resources:
+```sh
+npx -y firebase-tools@latest functions:secrets:set ALCHEMY_API_KEY --project <firebase-project-id>
+npx -y firebase-tools@latest functions:secrets:set ENCRYPTION_KEY --project <firebase-project-id>
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Generate encryption keys only for a new project/secret. Never replace an existing encryption key that protects stored credentials.
 
-## Join the community
+### Deploy
 
-Join our community of developers creating universal apps.
+Deploy only the codebase or functions needed for your configured secrets:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```sh
+npx -y firebase-tools@latest deploy --only functions:connectCryptoWallet,functions:syncCryptoWalletsOnDemand --project <firebase-project-id>
+npx -y firebase-tools@latest deploy --only functions:coinbase --project <firebase-project-id>
+npx -y firebase-tools@latest deploy --only functions:connectTrading212,functions:syncInvestmentBalancesOnDemand,functions:scheduledSyncInvestmentBalances --project <firebase-project-id>
+```
+
+For Coinbase, register this server callback URL in the approved Coinbase OAuth application:
+
+```text
+https://us-central1-<firebase-project-id>.cloudfunctions.net/oauthCallback
+```
+
+The app's separate return URI is `sayver://coinbase-connected`. Coinbase OAuth access is currently limited to approved applications. Do not deploy the legacy Zerion codebase unless you need that integration.
+
+Deploy Firebase rules separately when they change:
+
+```sh
+npx -y firebase-tools@latest deploy --only firestore:rules,storage --project <firebase-project-id>
+```
+
+## Tests
+
+Run the backend suites independently:
+
+```sh
+npm test --prefix functions
+npm test --prefix functions-coinbase
+```
+
+## GitHub Safety Checklist
+
+- Keep `.env`, `sayver-backend/.env`, Firebase service-account files, API secrets, OAuth client secrets, and encryption keys out of Git.
+- Review `git status --short` before staging; this workspace may contain local agent files, generated Expo files, and unrelated starter-template deletions.
+- Review Firestore and Storage rules for the Firebase project you are publishing to.
+- Use a dedicated demo account for any screenshots; never include real balances, account identifiers, email addresses, or transaction history in preview images.
