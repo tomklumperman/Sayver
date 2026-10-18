@@ -25,7 +25,9 @@ export const BankProvider = {
 };
 
 function getTrueLayerBackendBaseUrl() {
-  return Constants?.expoConfig?.extra?.truelayerBackendBaseUrl || 'http://localhost:3001';
+  return process.env.EXPO_PUBLIC_TRUELAYER_BACKEND_BASE_URL?.trim()
+    || Constants?.expoConfig?.extra?.truelayerBackendBaseUrl
+    || 'http://localhost:3001';
 }
 
 function getBackendCandidates() {

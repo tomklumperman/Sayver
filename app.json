@@ -20,7 +20,6 @@
       "truelayerClientId": "sandbox-sayverdevelopment-4b28b1",
       "truelayerEnv": "sandbox",
       "truelayerRedirectUri": "sayver://callback",
-      "truelayerBackendBaseUrl": "http://192.168.1.61:3001",
       "eas": {
         "projectId": "6aae3443-879c-4f8b-bc6d-2292268cb3ba"
       }

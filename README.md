@@ -27,7 +27,7 @@ For a custom development build, use `npx expo start --dev-client` and build/inst
 - Read-only investment accounts and balances.
 - Self-custody wallet balance tracking for Ethereum, Base, and Solana through Alchemy. Only public addresses are accepted; the app does not request private keys or seed phrases.
 - Coinbase OAuth scaffolding for read-only crypto balances. Coinbase OAuth requires an approved OAuth application and configured credentials.
-- User-owned account data protected by Firestore rules; provider credentials and OAuth state are stored separately and are server-only.
+- User-owned profile and account data protected by Firestore rules; collaborator email lookup runs in an authenticated server function, while provider credentials and OAuth state remain server-only.
 
 ## Project Layout
 
@@ -63,14 +63,23 @@ For a custom development build, use `npx expo start --dev-client` and build/inst
    npx expo start --go
    ```
 
-4. If running the TrueLayer backend locally, configure its environment in `sayver-backend/.env` and start it separately:
+4. For local TrueLayer development, configure the app's backend URL and backend credentials separately:
+
+   ```sh
+   cp .env.example .env.local
+   cp sayver-backend/.env.example sayver-backend/.env
+   ```
+
+   Edit `.env.local` and set `EXPO_PUBLIC_TRUELAYER_BACKEND_BASE_URL` to an address reachable by your device. Use your computer's LAN IP for a physical phone; use `localhost` for an iOS simulator or the Android emulator fallback. Keep `sayver-backend/.env` private.
+
+   Start the backend separately:
 
    ```sh
    npm install --prefix sayver-backend
    npm start --prefix sayver-backend
    ```
 
-   The local backend expects `PORT`, `ACCOUNTS_CACHE_TTL_MS`, `FIREBASE_PROJECT_ID`, `FIREBASE_WEB_API_KEY`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `TRUELAYER_ENV`, `TRUELAYER_CLIENT_ID`, `TRUELAYER_CLIENT_SECRET`, and `TRUELAYER_REDIRECT_URI`. Keep the `.env` file private. Update `truelayerBackendBaseUrl` in `app.json` to the reachable backend address for your device; do not use a machine-specific LAN address in a public release configuration.
+   The backend template lists the required variables: `PORT`, `ACCOUNTS_CACHE_TTL_MS`, `FIREBASE_PROJECT_ID`, `FIREBASE_WEB_API_KEY`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`, `TRUELAYER_ENV`, `TRUELAYER_CLIENT_ID`, `TRUELAYER_CLIENT_SECRET`, and `TRUELAYER_REDIRECT_URI`. Fill in credentials locally; never commit their values or a machine-specific backend URL.
 
 ## Firebase Functions
 

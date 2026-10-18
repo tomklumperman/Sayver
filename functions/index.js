@@ -4,6 +4,7 @@ const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { defineSecret } = require("firebase-functions/params");
 const { createHash } = require("node:crypto");
 const { initializeApp } = require("firebase-admin/app");
+const { getAuth: getAdminAuth } = require("firebase-admin/auth");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const {
   Trading212Provider,
@@ -12,6 +13,7 @@ const {
 } = require("./trading212");
 const { encryptCredential, decryptCredential } = require("./src/credentialsEncryption");
 const { deleteConnectedAccount } = require("./src/deleteConnectedAccount");
+const { lookupCollaboratorByEmail } = require("./src/userLookup");
 const { createAlchemyCryptoWalletProvider, getWalletNetwork, isValidPublicAddress, WalletProviderAccessError } = require("./src/providers/cryptoWalletProvider");
 
 initializeApp();
@@ -25,6 +27,19 @@ const encryptionKey = defineSecret("ENCRYPTION_KEY");
 const alchemyApiKey = defineSecret("ALCHEMY_API_KEY");
 
 exports.deleteConnectedAccount = onCall((request) => deleteConnectedAccount(db, request));
+
+exports.lookupCollaboratorByEmail = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Must be signed in.");
+  const email = typeof request.data?.email === "string" ? request.data.email.trim().toLowerCase() : "";
+  if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new HttpsError("invalid-argument", "Enter a valid email address.");
+  }
+  try {
+    return await lookupCollaboratorByEmail(getAdminAuth(), email);
+  } catch (_error) {
+    throw new HttpsError("internal", "Could not look up that Sayver account.");
+  }
+});
 
 function createCryptoAccountId(userId, network, address) {
   const addressHash = createHash("sha256").update(address).digest("hex").slice(0, 32);

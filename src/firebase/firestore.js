@@ -1,4 +1,5 @@
 import { getAuth } from 'firebase/auth';
+import { httpsCallable } from 'firebase/functions';
 import {
     addDoc,
     arrayUnion,
@@ -17,7 +18,7 @@ import {
     updateDoc,
     where
 } from 'firebase/firestore';
-import { getFirestoreDb } from './config';
+import { getFirebaseFunctions, getFirestoreDb } from './config';
 
 const DEFAULT_ACCOUNT_COLORS = {
   Bank: '#dbeafe',
@@ -711,26 +712,10 @@ export async function processDueRecurringTransactions(userId) {
 }
 
 export async function getUserByEmail(email) {
-  const db = getFirestoreDb();
-  const usersCollection = collection(db, 'users');
-  const normalizedEmail = email.trim().toLowerCase();
-
-  const normalizedQuery = query(usersCollection, where('email', '==', normalizedEmail));
-  const normalizedSnapshot = await getDocs(normalizedQuery);
-  if (normalizedSnapshot.docs.length > 0) {
-    return { id: normalizedSnapshot.docs[0].id, ...normalizedSnapshot.docs[0].data() };
-  }
-
-  const exactEmail = email.trim();
-  if (exactEmail && exactEmail !== normalizedEmail) {
-    const exactQuery = query(usersCollection, where('email', '==', exactEmail));
-    const exactSnapshot = await getDocs(exactQuery);
-    if (exactSnapshot.docs.length > 0) {
-      return { id: exactSnapshot.docs[0].id, ...exactSnapshot.docs[0].data() };
-    }
-  }
-
-  return null;
+  const callable = httpsCallable(getFirebaseFunctions(), 'lookupCollaboratorByEmail');
+  const result = await callable({ email: String(email || '').trim().toLowerCase() });
+  const user = result.data;
+  return user?.uid ? { id: user.uid, ...user } : null;
 }
 
 function normalizeInviteEmails(inviteEmails) {
