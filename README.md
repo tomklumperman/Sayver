@@ -131,10 +131,3 @@ Run the backend suites independently:
 npm test --prefix functions
 npm test --prefix functions-coinbase
 ```
-
-## GitHub Safety Checklist
-
-- Keep `.env`, `sayver-backend/.env`, Firebase service-account files, API secrets, OAuth client secrets, and encryption keys out of Git.
-- Review `git status --short` before staging; this workspace may contain local agent files, generated Expo files, and unrelated starter-template deletions.
-- Review Firestore and Storage rules for the Firebase project you are publishing to.
-- Use a dedicated demo account for any screenshots; never include real balances, account identifiers, email addresses, or transaction history in preview images.
