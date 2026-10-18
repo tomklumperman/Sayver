@@ -84,7 +84,7 @@ npm install --prefix functions-zerion
 
 ### Secrets
 
-Set values interactively with the Firebase CLI. Never commit secret values or paste them into issues or chat.
+Set values interactively with the Firebase CLI.
 
 - `functions` (default): `ALCHEMY_API_KEY` for wallet functions; `ENCRYPTION_KEY` for Trading 212 credentials.
 - `functions-coinbase` (`coinbase`): `COINBASE_ENCRYPTION_KEY`, `COINBASE_OAUTH_CLIENT_ID`, and `COINBASE_OAUTH_CLIENT_SECRET`. The callback and legacy Coinbase ciphertext migration also require the existing `ENCRYPTION_KEY`; do not rotate it while Trading 212 or legacy Coinbase data depends on it.
