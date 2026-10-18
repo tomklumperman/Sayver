@@ -41,7 +41,6 @@ sayver-backend/data/
 # typescript
 *.tsbuildinfo
 
-example
 
 # generated native folders
 /ios
