@@ -8,7 +8,7 @@ Sayver is a personal-finance and shared-savings mobile app built with Expo and R
 
 ## Preview
 
-A real app screenshot is not included yet. To preview the app on a device with Expo Go, start Metro from the repository root:
+A real app screenshot is coming soon! To preview the app on a device with Expo Go, start Metro from the repository root:
 
 ```sh
 npm install
@@ -22,9 +22,9 @@ For a custom development build, use `npx expo start --dev-client` and build/inst
 ## Features
 
 - Personal accounts, transactions, savings goals, and a balance trend.
-- Shared savings accounts, invitations, collaborator activity, and shared goals.
+- Shared savings accounts, invitations, collaborate with others and share savings goals.
 - Read-only bank account linking through the Sayver backend and TrueLayer.
-- Read-only Trading 212 account and position balances.
+- Read-only investment accounts and balances.
 - Self-custody wallet balance tracking for Ethereum, Base, and Solana through Alchemy. Only public addresses are accepted; the app does not request private keys or seed phrases.
 - Coinbase OAuth scaffolding for read-only crypto balances. Coinbase OAuth requires an approved OAuth application and configured credentials.
 - User-owned account data protected by Firestore rules; provider credentials and OAuth state are stored separately and are server-only.
