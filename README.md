@@ -8,7 +8,13 @@ Sayver is a personal-finance and shared-savings mobile app built with Expo and R
 
 ## Preview
 
-A real app screenshot is coming soon! To preview the app on a device with Expo Go, start Metro from the repository root:
+<p align="center">
+  <img src="images/Future-1.PNG" alt="Sayver future finances screen" width="23%">
+  <img src="images/Home-2.png" alt="Sayver home screen" width="23%">
+  <img src="images/Shared-3.png" alt="Sayver shared savings screen" width="23%">
+  <img src="images/Settings-4.png" alt="Sayver settings screen" width="23%">
+</p>
+To preview the app on a device with Expo Go, start Metro from the repository root:
 
 ```sh
 npm install
